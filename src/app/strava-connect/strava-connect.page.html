@@ -1,19 +1,24 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>strava-connect</ion-title>
+    <ion-title>Connect with Strava</ion-title>
   </ion-toolbar>
-  <ion-button (click)="connectWithStrava()">
-    Connect with Strava
-  </ion-button>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">strava-connect</ion-title>
+      <ion-title size="large">Connect with Strava</ion-title>
     </ion-toolbar>
-    <ion-button (click)="connectWithStrava()">
-      Connect with Strava
-    </ion-button>
   </ion-header>
+
+  <ion-grid class="connect-grid">
+    <ion-row class="ion-align-items-center">
+      <ion-col size="12" class="ion-text-center">
+        <ion-button (click)="connectWithStrava()" shape="round" size="large">
+          <ion-icon slot="start" name="strava" size="large"></ion-icon>
+          Connect
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

@@ -1,25 +1,27 @@
-import { Component, inject } from '@angular/core';
-import { RefresherCustomEvent } from '@ionic/angular';
-import { MessageComponent } from '../message/message.component';
-
-import { DataService, Message } from '../services/data.service';
+import {Component} from '@angular/core';
+import {StravaAthleteService} from '../services/strava-athlete.service';
+import {CompleteAthlete, DetailedAthlete} from '../model/strava';
+import {mergeMap, Observable} from 'rxjs';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: 'home.page.html',
-  styleUrls: ['home.page.scss'],
+    selector: 'app-home',
+    templateUrl: 'home.page.html',
+    styleUrls: ['home.page.scss'],
 })
 export class HomePage {
-  private data = inject(DataService);
-  constructor() {}
 
-  refresh(ev: any) {
-    setTimeout(() => {
-      (ev as RefresherCustomEvent).detail.complete();
-    }, 3000);
-  }
+    completeAthlete: Observable<CompleteAthlete>;
 
-  getMessages(): Message[] {
-    return this.data.getMessages();
-  }
+    constructor(private stravaAthleteService: StravaAthleteService) {
+        this.completeAthlete = this.stravaAthleteService.getAthleteDetails().pipe(
+            mergeMap((athlete: DetailedAthlete) => this.stravaAthleteService.getAthleteStats(athlete.id).pipe(
+                // Combine the results into a single object
+                mergeMap((athleteStats) => {
+                    const completeAthlete = {athlete, athlete_stats: athleteStats};
+                    return [completeAthlete];
+                })
+            )),
+        );
+    }
+
 }

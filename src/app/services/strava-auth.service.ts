@@ -5,17 +5,17 @@ import {environment} from '../../environments/environment';
 import {TokenValue} from '../model/strava/token-value';
 import {Router} from '@angular/router';
 
+export const STRAVA_TOKEN_VALUE_STORAGE_KEY = "strava_token_value";
+
 @Injectable({
     providedIn: 'root'
 })
 export class StravaAuthService {
 
-    public readonly strava_token_storage_key = "strava_token";
-
     private isAuthenticated$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     public isAuthenticated = this.isAuthenticated$.asObservable();
 
-    private token$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null)
+    private token$: BehaviorSubject<TokenValue | null> = new BehaviorSubject<TokenValue | null>(null)
     public token = this.token$.asObservable();
 
     constructor(
@@ -23,14 +23,14 @@ export class StravaAuthService {
         private router: Router,
     ) {
 
-        const tokenFromStorage = localStorage.getItem(this.strava_token_storage_key);
+        const tokenFromStorage = localStorage.getItem(STRAVA_TOKEN_VALUE_STORAGE_KEY);
         if (tokenFromStorage) {
-            this.setAuthenticatedUser(tokenFromStorage)
+            this.setAuthenticatedUser(JSON.parse(tokenFromStorage))
         }
     }
 
     isConnected(): boolean {
-        return localStorage.getItem(this.strava_token_storage_key) != null;
+        return localStorage.getItem(STRAVA_TOKEN_VALUE_STORAGE_KEY) != null;
     }
 
     public initCodeFlow() {
@@ -46,7 +46,7 @@ export class StravaAuthService {
         this.http.post<TokenValue>('https://www.strava.com/api/v3/oauth/token', payload).pipe(
             catchError(this.handleError)
         ).subscribe((response) => {
-            this.setAuthenticatedUser(response.access_token);
+            this.setAuthenticatedUser(response);
         });
     }
 
@@ -63,16 +63,17 @@ export class StravaAuthService {
         return throwError('Something bad happened; please try again later.');
     }
 
-    public setAuthenticatedUser(token: string) {
+    public setAuthenticatedUser(token: TokenValue) {
         this.isAuthenticated$.next(true);
-        localStorage.setItem(this.strava_token_storage_key, token);
+        localStorage.setItem(STRAVA_TOKEN_VALUE_STORAGE_KEY, JSON.stringify(token));
         this.token$.next(token);
         this.router.navigate(['/home']);
     }
 
     public clearAuthenticatedUser() {
         this.isAuthenticated$.next(false);
-        localStorage.removeItem(this.strava_token_storage_key);
+        localStorage.removeItem(STRAVA_TOKEN_VALUE_STORAGE_KEY);
         this.token$.next(null);
+        this.router.navigate(['/connect']);
     }
 }

@@ -1,0 +1,41 @@
+<div *ngIf="completeAthlete">
+
+    <ion-grid>
+        <ion-row class="ion-align-items-center">
+            <ion-col size="12" class="ion-text-center">
+                <ion-chip>
+                    <ion-avatar>
+                        <img src="{{ completeAthlete.athlete.profile }}" alt="Profile Picture">
+                    </ion-avatar>
+                    <ion-title>{{ completeAthlete.athlete.firstname }}</ion-title>
+                </ion-chip>
+            </ion-col>
+        </ion-row>
+
+        <ion-row>
+            <ion-col>
+                <ion-card class="stats-card">
+                    <ion-card-content>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col size="6">
+                                    <ion-icon name="bicycle-outline"></ion-icon>
+                                    <p>Total Kilometers</p>
+                                    <strong>{{ completeAthlete.athlete_stats.all_ride_totals.distance | number: '1.2-2' }}
+                                        km</strong>
+                                </ion-col>
+                                <ion-col size="6">
+                                    <ion-icon name="arrow-up-outline"></ion-icon>
+                                    <p>Total Elevation</p>
+                                    <strong>{{ completeAthlete.athlete_stats.all_ride_totals.elevation_gain | number: '1.2-2' }}
+                                        m</strong>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-card-content>
+                </ion-card>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+
+</div>

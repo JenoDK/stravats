@@ -68,6 +68,34 @@ export class DataService {
       date: 'Last Week',
       id: 7,
       read: false
+    },
+    {
+      fromName: 'Kelly Richardson',
+      subject: 'Placeholder Headhots',
+      date: 'Last Week',
+      id: 8,
+      read: false
+    },
+    {
+      fromName: 'Kelly Richardson',
+      subject: 'Placeholder Headhots',
+      date: 'Last Week',
+      id: 9,
+      read: false
+    },
+    {
+      fromName: 'Kelly Richardson',
+      subject: 'Placeholder Headhots',
+      date: 'Last Week',
+      id: 10,
+      read: false
+    },
+    {
+      fromName: 'Kelly Richardson',
+      subject: 'Placeholder Headhots',
+      date: 'Last Week',
+      id: 11,
+      read: false
     }
   ];
 
