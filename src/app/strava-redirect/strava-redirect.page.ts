@@ -15,6 +15,7 @@ export class StravaRedirectPage implements OnInit {
   ) { }
 
   ngOnInit() {
+    console.log(`Arrived in the redirect page`);
     const code = this.route.snapshot.queryParamMap.get('code');
     if (code != null) {
         this.stravaAuthService.getAccessToken(code);

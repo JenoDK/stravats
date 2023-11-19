@@ -1,41 +1,104 @@
 <div *ngIf="completeAthlete">
 
-    <ion-grid>
-        <ion-row class="ion-align-items-center">
-            <ion-col size="12" class="ion-text-center">
-                <ion-chip>
-                    <ion-avatar>
-                        <img src="{{ completeAthlete.athlete.profile }}" alt="Profile Picture">
-                    </ion-avatar>
-                    <ion-title>{{ completeAthlete.athlete.firstname }}</ion-title>
-                </ion-chip>
-            </ion-col>
-        </ion-row>
+  <!-- Basic User Information Card -->
+  <ion-card class="profile-card">
+    <ion-avatar>
+      <img src="{{ completeAthlete.athlete.profile }}" alt="Profile Picture">
+    </ion-avatar>
+    <ion-card-header>
+      <ion-card-title>{{ completeAthlete.athlete.firstname }} {{ completeAthlete.athlete.lastname }}</ion-card-title>
+      <ion-card-subtitle>User Since {{ completeAthlete.athlete.created_at | date: 'yyyy' }}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <p>Main Sport: {{ determineMainSport(completeAthlete.athlete_stats) }}</p>
+    </ion-card-content>
+  </ion-card>
 
+  <!-- Year Summary Card -->
+  <ion-card class="stats-card">
+    <ion-card-header>
+      <ion-card-title>Yearly summary</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
         <ion-row>
-            <ion-col>
-                <ion-card class="stats-card">
-                    <ion-card-content>
-                        <ion-grid>
-                            <ion-row>
-                                <ion-col size="6">
-                                    <ion-icon name="bicycle-outline"></ion-icon>
-                                    <p>Total Kilometers</p>
-                                    <strong>{{ completeAthlete.athlete_stats.all_ride_totals.distance | number: '1.2-2' }}
-                                        km</strong>
-                                </ion-col>
-                                <ion-col size="6">
-                                    <ion-icon name="arrow-up-outline"></ion-icon>
-                                    <p>Total Elevation</p>
-                                    <strong>{{ completeAthlete.athlete_stats.all_ride_totals.elevation_gain | number: '1.2-2' }}
-                                        m</strong>
-                                </ion-col>
-                            </ion-row>
-                        </ion-grid>
-                    </ion-card-content>
-                </ion-card>
-            </ion-col>
+          <ion-col size="4" *ngFor="let sport of getSports()">
+            <ion-icon [name]="getSportIcon(sport)"></ion-icon>
+            <p>{{ getSportDisplayName(sport) }}</p>
+            <strong>{{ completeAthlete.athlete_stats['ytd_' + sport + '_totals'].distance / 1000 | number: '1.0-0' }} km</strong>
+          </ion-col>
         </ion-row>
-    </ion-grid>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Cycling Card -->
+  <ion-card *ngIf="hasCyclingStats()">
+    <ion-card-header>
+      <ion-card-title>Cycling</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-icon name="bicycle-outline"></ion-icon>
+            <p>Total Kilometers</p>
+            <strong>{{ completeAthlete.athlete_stats.all_ride_totals.distance / 1000 | number: '1.0-0' }} km</strong>
+          </ion-col>
+          <ion-col size="6">
+            <ion-icon name="arrow-up-outline"></ion-icon>
+            <p>Total Elevation</p>
+            <strong>{{ completeAthlete.athlete_stats.all_ride_totals.elevation_gain | number: '1.0-0' }} m</strong>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Running Card -->
+  <ion-card *ngIf="hasRunningStats()">
+    <ion-card-header>
+      <ion-card-title>Running</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-icon name="walk-outline"></ion-icon>
+            <p>Total Kilometers</p>
+            <strong>{{ completeAthlete.athlete_stats.all_run_totals.distance / 1000 | number: '1.0-0' }} km</strong>
+          </ion-col>
+          <ion-col size="6">
+            <ion-icon name="stopwatch-outline"></ion-icon>
+            <p>Total Time</p>
+            <strong>{{ completeAthlete.athlete_stats.all_run_totals.moving_time | secondsToTime }} m</strong>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Workouts Card -->
+  <ion-card *ngIf="hasSwimmingStats()">
+    <ion-card-header>
+      <ion-card-title>Workouts</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-icon name="water-outline"></ion-icon>
+            <p>Total Distance</p>
+            <strong>{{ completeAthlete.athlete_stats.all_swim_totals.distance / 1000 | number: '1.0-0' }} km</strong>
+          </ion-col>
+          <ion-col size="6">
+            <ion-icon name="stopwatch-outline"></ion-icon>
+            <p>Total Time</p>
+            <strong>{{ completeAthlete.athlete_stats.all_swim_totals.moving_time | secondsToTime }}</strong>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
 
 </div>

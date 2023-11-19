@@ -15,7 +15,7 @@ export class StravaConnectPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    if (this.stravaAuthService.isConnected()) {
+    if (this.stravaAuthService.userIsAuthenticated()) {
       this.router.navigate(['/home'])
     }
   }

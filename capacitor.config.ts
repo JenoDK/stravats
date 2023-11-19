@@ -1,11 +1,13 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
+  appId: 'com.jeno',
   appName: 'Stravats',
   webDir: 'www',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'ionic',
+    iosScheme: 'ionic',
+    hostname: 'stravats'
   }
 };
 

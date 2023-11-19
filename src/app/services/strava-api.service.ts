@@ -1,7 +1,6 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
-import {STRAVA_TOKEN_VALUE_STORAGE_KEY} from './strava-auth.service';
-import {TokenValue} from '../model/strava/token-value';
+import {StravaAuthService} from './strava-auth.service';
 import {Router} from '@angular/router';
 import {catchError, map, Observable, throwError} from 'rxjs';
 
@@ -11,15 +10,15 @@ import {catchError, map, Observable, throwError} from 'rxjs';
 export class StravaApiService {
   private apiUrl = 'https://www.strava.com/api/v3'; // Strava API base URL
 
-  constructor(
-      private http: HttpClient,
-      private router: Router,
-  ) {}
+  private http = inject(HttpClient);
+  private router = inject(Router);
+  private stravaAuthService = inject(StravaAuthService);
+
+  constructor() {}
 
   private getHeaders(): HttpHeaders {
-    const tokenValue = localStorage.getItem(STRAVA_TOKEN_VALUE_STORAGE_KEY);
-    if (tokenValue) {
-      const accessToken = (JSON.parse(tokenValue) as TokenValue).access_token;
+    if (this.stravaAuthService.userIsAuthenticated()) {
+      const accessToken = this.stravaAuthService.getTokenFromLocalStorage().access_token;
       return new HttpHeaders({
         Authorization: `Bearer ${accessToken}`,
       });
