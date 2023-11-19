@@ -1,6 +1,6 @@
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {inject, Injectable} from '@angular/core';
-import {BehaviorSubject, catchError, throwError} from 'rxjs';
+import {BehaviorSubject, throwError} from 'rxjs';
 import {AppLauncher} from '@capacitor/app-launcher';
 import {environment} from '../../environments/environment';
 import {TokenValue} from '../model/strava/token-value';
@@ -83,18 +83,25 @@ export class StravaAuthService {
     }
   }
 
-  public getAccessToken(code: string) {
+  public getAccessToken(code: string, loading: HTMLIonLoadingElement) {
     const payload = {
       'client_id': environment.stravaOAuth.clientId,
       'client_secret': environment.stravaOAuth.clientSecret,
       'grant_type': 'authorization_code',
       'code': code
     };
-    this.http.post<TokenValue>('https://www.strava.com/api/v3/oauth/token', payload).pipe(
-      catchError(this.handleError)
-    ).subscribe((response) => {
-      this.setAuthenticatedUser(response);
-    });
+    this.http.post<TokenValue>('https://www.strava.com/api/v3/oauth/token', payload)
+      .subscribe({
+        next: (response) => {
+          this.setAuthenticatedUser(response);
+          loading.dismiss();
+        },
+        error: (e) => {
+          this.handleError(e);
+          loading.dismiss();
+        },
+        complete: () => console.info('complete')
+      });
   }
 
   private handleError(error: HttpErrorResponse) {
