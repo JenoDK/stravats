@@ -1,7 +1,7 @@
 {
-  "name": "Stravats",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "angular"
+	"name": "Stravats",
+	"integrations": {
+		"capacitor": {}
+	},
+	"type": "angular"
 }

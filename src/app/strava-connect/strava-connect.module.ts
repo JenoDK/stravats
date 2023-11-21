@@ -9,12 +9,12 @@ import { StravaConnectPageRoutingModule } from './strava-connect-routing.module'
 import { StravaConnectPage } from './strava-connect.page';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    StravaConnectPageRoutingModule
-  ],
-  declarations: [StravaConnectPage]
+	imports: [
+		CommonModule,
+		FormsModule,
+		IonicModule,
+		StravaConnectPageRoutingModule,
+	],
+	declarations: [StravaConnectPage],
 })
 export class StravaConnectPageModule {}

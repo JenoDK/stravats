@@ -9,12 +9,12 @@ import { StravaRedirectPageRoutingModule } from './strava-redirect-routing.modul
 import { StravaRedirectPage } from './strava-redirect.page';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    StravaRedirectPageRoutingModule
-  ],
-  declarations: [StravaRedirectPage]
+	imports: [
+		CommonModule,
+		FormsModule,
+		IonicModule,
+		StravaRedirectPageRoutingModule,
+	],
+	declarations: [StravaRedirectPage],
 })
 export class StravaRedirectPageModule {}

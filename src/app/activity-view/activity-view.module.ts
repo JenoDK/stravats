@@ -9,12 +9,12 @@ import { ActivityViewPageRoutingModule } from './activity-view-routing.module';
 import { ActivityViewPage } from './activity-view.page';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ActivityViewPageRoutingModule
-  ],
-  declarations: [ActivityViewPage]
+	imports: [
+		CommonModule,
+		FormsModule,
+		IonicModule,
+		ActivityViewPageRoutingModule,
+	],
+	declarations: [ActivityViewPage],
 })
 export class ActivityViewPageModule {}

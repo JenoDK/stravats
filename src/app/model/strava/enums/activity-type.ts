@@ -1,5 +1,5 @@
 export enum ActivityType {
-    AllSportTypes = 'All sport types',
+	AllSportTypes = 'All sport types',
 	AlpineSki = 'AlpineSki',
 	BackcountrySki = 'BackcountrySki',
 	Canoeing = 'Canoeing',
@@ -28,5 +28,5 @@ export enum ActivityType {
 	WeightTraining = 'WeightTraining',
 	Windsurf = 'Windsurf',
 	Workout = 'Workout',
-	Yoga = 'Yoga'
+	Yoga = 'Yoga',
 }

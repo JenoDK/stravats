@@ -1,15 +1,27 @@
 <ion-app>
-  <ion-tabs class="ion-padding-bottom">
-    <ion-tab-bar slot="bottom" class="custom-tab-bar">
-      <ion-tab-button tab="home" routerLink="/home" class="custom-tab-button">
-        <ion-icon name="home-outline"></ion-icon>
-      </ion-tab-button>
-      <ion-tab-button tab="activities" routerLink="/activities" class="custom-tab-button">
-        <ion-icon name="search-outline"></ion-icon>
-      </ion-tab-button>
-      <ion-tab-button tab="clear" (click)="clearToken()" class="custom-tab-button">
-        <ion-icon name="trash"></ion-icon>
-      </ion-tab-button>
-    </ion-tab-bar>
-  </ion-tabs>
+	<ion-tabs class="ion-padding-bottom">
+		<ion-tab-bar slot="bottom" class="custom-tab-bar">
+			<ion-tab-button
+				tab="home"
+				routerLink="/home"
+				class="custom-tab-button"
+			>
+				<ion-icon name="home-outline"></ion-icon>
+			</ion-tab-button>
+			<ion-tab-button
+				tab="activities"
+				routerLink="/activities"
+				class="custom-tab-button"
+			>
+				<ion-icon name="search-outline"></ion-icon>
+			</ion-tab-button>
+			<ion-tab-button
+				tab="clear"
+				(click)="clearToken()"
+				class="custom-tab-button"
+			>
+				<ion-icon name="trash"></ion-icon>
+			</ion-tab-button>
+		</ion-tab-bar>
+	</ion-tabs>
 </ion-app>

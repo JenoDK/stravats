@@ -1,6 +1,6 @@
 import { ZoneRange } from '.';
 
 export interface HeartRateZoneRanges {
-    custom_zones: boolean;
-    zones: ZoneRange[];
+	custom_zones: boolean;
+	zones: ZoneRange[];
 }
