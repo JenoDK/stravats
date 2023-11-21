@@ -1,12 +1,13 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, throwError } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { AppLauncher } from '@capacitor/app-launcher';
 import { environment } from '../../environments/environment';
 import { TokenValue } from '../model/strava/token-value';
 import { Router } from '@angular/router';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
+import { handleError } from '../common/Utils';
 
 export const STRAVA_TOKEN_VALUE_STORAGE_KEY = 'strava_token_value';
 
@@ -114,26 +115,11 @@ export class StravaAuthService {
 					loading.dismiss();
 				},
 				error: (e) => {
-					this.handleError(e);
+					handleError(e);
 					loading.dismiss();
 				},
 				complete: () => console.info('complete'),
 			});
-	}
-
-	private handleError(error: HttpErrorResponse) {
-		if (error.error instanceof ErrorEvent) {
-			// A client-side or network error occurred. Handle it accordingly.
-			console.error('An error occurred:', error.error.message);
-		} else {
-			// The backend returned an unsuccessful response code.
-			// The response body may contain clues as to what went wrong.
-			console.error(
-				`Backend returned code ${error.status}, body was: ${error.error}`,
-			);
-		}
-		// Return an observable with a user-facing error message.
-		return throwError('Something bad happened; please try again later.');
 	}
 
 	public setAuthenticatedUser(token: TokenValue) {

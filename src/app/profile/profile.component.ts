@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AthleteStats, CompleteAthlete } from '../model/strava';
+import { getSportIcon } from '../common/Utils';
 
 @Component({
 	selector: 'app-profile',
@@ -33,19 +34,6 @@ export class ProfileComponent implements OnInit {
 		}
 	}
 
-	getSportIcon(sport: string): string {
-		switch (sport) {
-			case 'ride':
-				return 'bicycle-outline';
-			case 'run':
-				return 'walk-outline';
-			case 'swim':
-				return 'water-outline';
-			default:
-				return '';
-		}
-	}
-
 	getSportDisplayName(sport: string): string {
 		switch (sport) {
 			case 'ride':
@@ -60,7 +48,7 @@ export class ProfileComponent implements OnInit {
 	}
 
 	getSports(): string[] {
-		const sports = [];
+		const sports: string[] = [];
 		if (this.hasCyclingStats()) {
 			sports.push('ride');
 		}
@@ -84,4 +72,6 @@ export class ProfileComponent implements OnInit {
 	hasSwimmingStats() {
 		return this.completeAthlete.athlete_stats.all_swim_totals.distance > 0;
 	}
+
+	protected readonly getSportIcon = getSportIcon;
 }

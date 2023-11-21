@@ -37,7 +37,7 @@
 				<ion-row>
 					<ion-col size="4" *ngFor="let sport of getSports()">
 						<ion-icon [name]="getSportIcon(sport)"></ion-icon>
-						<p>{{ getSportDisplayName(sport) }}</p>
+						<p>{{ sport }}</p>
 						<strong
 							>{{
 								completeAthlete.athlete_stats[

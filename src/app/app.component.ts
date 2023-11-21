@@ -1,7 +1,6 @@
 import { Component, NgZone } from '@angular/core';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
 import { Router } from '@angular/router';
-import { STRAVA_TOKEN_VALUE_STORAGE_KEY } from './services/strava-auth.service';
 
 @Component({
 	selector: 'app-root',
@@ -33,8 +32,8 @@ export class AppComponent {
 		});
 	}
 
-	clearToken() {
-		localStorage.removeItem(STRAVA_TOKEN_VALUE_STORAGE_KEY);
+	clearData() {
+		localStorage.clear();
 		this.router.navigate(['/connect']);
 	}
 }
