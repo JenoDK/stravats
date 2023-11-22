@@ -5,6 +5,7 @@ import { AppLauncher } from '@capacitor/app-launcher';
 import { Browser } from '@capacitor/browser';
 import { getActivityIcon } from '../common/Utils';
 import * as Leaflet from 'leaflet';
+import { decode } from 'google-polyline';
 
 @Component({
 	selector: 'app-activity',
@@ -26,20 +27,28 @@ export class ActivityComponent implements OnInit {
 	}
 
 	initMap() {
+		const decoded = decode(this.activity.map.summary_polyline);
 		const mapDiv = document.getElementById(`map-${this.activity.id}`);
-		const map = Leaflet.map(mapDiv).setView([51.505, -0.09], 13);
-		Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		}).addTo(map);
-		// Draw GPS data on the map (example coordinates)
-		const polyline = Leaflet.polyline([[51.505, -0.09], [51.51, -0.1], [51.51, -0.12]], { color: 'red' }).addTo(map);
+		if (decoded.length > 0) {
+			const map = Leaflet.map(mapDiv, { zoomControl: false });
+			Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			}).addTo(map);
+			Leaflet.polyline(decoded, { color: 'orange' }).addTo(map);
+			var bounds = new Leaflet.LatLngBounds(decoded);
+			const resizeObserver = new ResizeObserver(() => {
+				map._handlers.forEach(function(handler) {
+					handler.disable();
 
-		// Fit the map to the polyline bounds
-		map.fitBounds(polyline.getBounds());
-		const resizeObserver = new ResizeObserver(() => {
-			map.invalidateSize();
-		});
+				});
+				map.fitBounds(bounds);
+				map.invalidateSize();
+			});
 
-		resizeObserver.observe(mapDiv);
+			resizeObserver.observe(mapDiv);
+		} else {
+			mapDiv.remove();
+			return null;
+		}
 	}
 
 	isIos() {

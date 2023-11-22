@@ -39,23 +39,20 @@ export class ActivitiesPage implements OnInit {
 		if (storedActivities) {
 			this.stravaActivitiesService.getActivities(1, 1).subscribe({
 				next: (activities: DetailedActivity[]) => {
-					if (activities && activities.length > 0) {
-						if (
-							storedActivities.findIndex(
-								(value) => value.id === activities[0].id,
-							) === -1
-						) {
-							this.clearStoredActivities();
-							this.activities = [];
-						}
+					if (activities && activities.length > 0 && storedActivities.findIndex((value) => value.id === activities[0].id) === -1) {
+						this.clearStoredActivities();
+						this.activities = [];
+						this.loadRecentActivities(this.page, callback);
+					} else {
+						callback();
 					}
-					this.loadRecentActivities(this.page, callback);
 				},
 				error: (e) => {
-					this.loadRecentActivities(this.page, callback);
+					callback();
 				},
 			});
 		} else {
+			this.clearStoredActivities();
 			this.loadRecentActivities(this.page, callback);
 		}
 	}
@@ -122,6 +119,7 @@ export class ActivitiesPage implements OnInit {
 	}
 
 	private clearStoredActivities() {
+		this.page = 1;
 		// Clear all stored activities in localStorage
 		let page = 1;
 		let removed = false;
