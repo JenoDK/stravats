@@ -32,10 +32,13 @@
 							}
 						],
 						"styles": [
+							"node_modules/leaflet/dist/leaflet.css",
 							"src/theme/variables.scss",
 							"src/global.scss"
 						],
-						"scripts": []
+						"scripts": [
+							"node_modules/leaflet/dist/leaflet.js"
+						]
 					},
 					"configurations": {
 						"production": {
@@ -121,10 +124,13 @@
 							}
 						],
 						"styles": [
+							"node_modules/leaflet/dist/leaflet.css",
 							"src/theme/variables.scss",
 							"src/global.scss"
 						],
-						"scripts": []
+						"scripts": [
+							"node_modules/leaflet/dist/leaflet.js"
+						]
 					},
 					"configurations": {
 						"ci": {
