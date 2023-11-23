@@ -41,13 +41,11 @@ export class ActivityComponent implements OnInit {
 			map._handlers.forEach(function(handler) {
 				handler.disable();
 			});
+			const bounds = new Leaflet.LatLngBounds(decoded);
 			function fitMapToPolyline() {
 				const resizeObserver = new ResizeObserver(() => {
-					var bounds = new Leaflet.LatLngBounds(decoded);
 					map.fitBounds(bounds);
-					map.invalidateSize();
 				});
-
 				resizeObserver.observe(mapDiv);
 			}
 			map.on('load', function(e) {
