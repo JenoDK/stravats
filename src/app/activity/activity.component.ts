@@ -25,7 +25,7 @@ export class ActivityComponent implements OnInit {
 		this.activityIcon = getActivityIcon(this.activity.type);
 	}
 
-	ngAfterViewInit () {
+	ngAfterViewInit() {
 		this.initMap();
 	}
 
@@ -48,9 +48,6 @@ export class ActivityComponent implements OnInit {
 				});
 				resizeObserver.observe(mapDiv);
 			}
-			map.on('load', function(e) {
-				fitMapToPolyline();
-			});
 			fitMapToPolyline();
 		}
 	}

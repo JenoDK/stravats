@@ -1,17 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { StravaAthleteService } from '../services/strava-athlete.service';
 import { CompleteAthlete, DetailedAthlete } from '../model/strava';
-import { mergeMap, Observable } from 'rxjs';
+import { filter, mergeMap, Observable } from 'rxjs';
+import { StravaAuthService } from '../services/strava-auth.service';
+import { StravaActivitiesService } from '../services/strava-activities.service';
 
 @Component({
 	selector: 'app-home',
 	templateUrl: 'home.page.html',
 	styleUrls: ['home.page.scss'],
 })
-export class HomePage {
+export class HomePage implements OnInit {
 	completeAthlete: Observable<CompleteAthlete>;
 
-	constructor(private stravaAthleteService: StravaAthleteService) {
+	constructor(
+		private stravaAthleteService: StravaAthleteService,
+		private stravaAuthService: StravaAuthService,
+		private stravaActivitiesService: StravaActivitiesService
+	) {
 		this.completeAthlete = this.stravaAthleteService
 			.getAthleteDetails()
 			.pipe(
@@ -29,4 +35,12 @@ export class HomePage {
 				),
 			);
 	}
+
+	ngOnInit(): void {
+        this.stravaAuthService.isAuthenticated.pipe(
+			filter(isAuthenticated => isAuthenticated)
+		).subscribe(() => {
+			this.stravaActivitiesService.loadAllActivities();
+		});
+    }
 }
