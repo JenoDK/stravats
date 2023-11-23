@@ -6,6 +6,7 @@ import { Browser } from '@capacitor/browser';
 import { getActivityIcon } from '../common/Utils';
 import * as Leaflet from 'leaflet';
 import { decode } from 'google-polyline';
+import { ActivityType } from '../model/strava/enums';
 
 @Component({
 	selector: 'app-activity',
@@ -14,6 +15,8 @@ import { decode } from 'google-polyline';
 })
 export class ActivityComponent implements OnInit {
 	private platform = inject(Platform);
+	protected readonly ActivityType = ActivityType;
+
 	@Input() activity?: DetailedActivity;
 
 	activityIcon: string;
@@ -29,25 +32,28 @@ export class ActivityComponent implements OnInit {
 	initMap() {
 		const decoded = decode(this.activity.map.summary_polyline);
 		const mapDiv = document.getElementById(`map-${this.activity.id}`);
+
 		if (decoded.length > 0) {
 			const map = Leaflet.map(mapDiv, { zoomControl: false });
 			Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 			}).addTo(map);
 			Leaflet.polyline(decoded, { color: 'orange' }).addTo(map);
-			var bounds = new Leaflet.LatLngBounds(decoded);
-			const resizeObserver = new ResizeObserver(() => {
-				map._handlers.forEach(function(handler) {
-					handler.disable();
-
-				});
-				map.fitBounds(bounds);
-				map.invalidateSize();
+			map._handlers.forEach(function(handler) {
+				handler.disable();
 			});
+			function fitMapToPolyline() {
+				const resizeObserver = new ResizeObserver(() => {
+					var bounds = new Leaflet.LatLngBounds(decoded);
+					map.fitBounds(bounds);
+					map.invalidateSize();
+				});
 
-			resizeObserver.observe(mapDiv);
-		} else {
-			mapDiv.remove();
-			return null;
+				resizeObserver.observe(mapDiv);
+			}
+			map.on('load', function(e) {
+				fitMapToPolyline();
+			});
+			fitMapToPolyline();
 		}
 	}
 
@@ -72,4 +78,5 @@ export class ActivityComponent implements OnInit {
 		};
 		startStravaOAuthFlow().then(() => {});
 	}
+
 }

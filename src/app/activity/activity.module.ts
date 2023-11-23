@@ -5,9 +5,10 @@ import { RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
 import { ActivityComponent } from './activity.component';
+import { PipesModule } from '../pipes/pipes.module';
 
 @NgModule({
-	imports: [CommonModule, FormsModule, IonicModule, RouterModule],
+    imports: [CommonModule, FormsModule, IonicModule, RouterModule, PipesModule],
 	declarations: [ActivityComponent],
 	exports: [ActivityComponent],
 })

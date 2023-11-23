@@ -44,7 +44,7 @@ export class ActivitiesPage implements OnInit {
 						this.activities = [];
 						this.loadRecentActivities(this.page, callback);
 					} else {
-						callback();
+						this.loadRecentActivities(this.page, callback);
 					}
 				},
 				error: (e) => {
