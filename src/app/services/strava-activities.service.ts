@@ -1,136 +1,183 @@
 import { Injectable } from '@angular/core';
 import { StravaApiService } from './strava-api.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable, of } from 'rxjs';
 import { DetailedActivity } from '../model/strava';
-import { handleError } from '../common/Utils';
 
 @Injectable({
-	providedIn: 'root',
+    providedIn: 'root',
 })
 export class StravaActivitiesService {
-	private readonly perPageSize = 50;
+    private readonly perPageSize = 50;
 
-	private isLoadingActivities$: BehaviorSubject<boolean> = new BehaviorSubject(
-		false,
-	);
-	public isLoadingActivities = this.isLoadingActivities$.asObservable();
+    private isLoadingActivities$: BehaviorSubject<boolean> = new BehaviorSubject(
+        false,
+    );
+    public isLoadingActivities = this.isLoadingActivities$.asObservable();
 
-	private isFirstPageFetched$: BehaviorSubject<boolean> = new BehaviorSubject(
-		false,
-	);
-	public isFirstPageFetched = this.isFirstPageFetched$.asObservable();
+    private isFirstPageFetched$: BehaviorSubject<boolean> = new BehaviorSubject(
+        false,
+    );
+    public isFirstPageFetched = this.isFirstPageFetched$.asObservable();
 
-	constructor(private stravaApiService: StravaApiService) {}
+    constructor(private stravaApiService: StravaApiService) {
+    }
 
-	loadAllActivities() {
-		this.isLoadingActivities$.next(true);
-		const storedActivities = this.getStoredActivities(1);
-		if (storedActivities) {
-			this.getActivities(1, 1).subscribe({
-				next: (activities: DetailedActivity[]) => {
-					if (activities && activities.length > 0 && storedActivities.findIndex((value) => value.id === activities[0].id) === -1) {
-						this.clearStoredActivities();
-						this.loadActivitiesRecursive(1);
-					} else {
-						this.finishLoading();
-					}
-				},
-				error: (e) => {
-					this.finishLoading();
-					handleError(e);
-				},
-			});
-		} else {
-			this.clearStoredActivities();
-			this.loadActivitiesRecursive(1);
-		}
-	}
+    loadAllActivities() {
+        this.isLoadingActivities$.next(true);
+        this.hasNewActivities()
+            .subscribe(hasNewActivities => {
+                // If we have new activities, we restart the fetch completely. We can try to be smart but this is fine.
+                if (hasNewActivities) {
+                    this.reloadAllActivities();
+                } else {
+                    this.isNotDoneFetching()
+                        .subscribe({
+                            // If not all activities are fetched yet, continue fetching. This could be because the user aborted the fetches because the app was closed f.e.
+                            next: (isNotDone) => {
+                                if (isNotDone) {
+                                    this.loadActivitiesRecursive(this.getStoredActivitiesLastPage());
+                                } else {
+                                    this.finishLoading();
+                                }
+                            },
+                            error: () => {
+                                this.finishLoading();
+                            },
+                            complete: () => console.info('complete'),
+                        })
+                }
+            })
+    }
 
-	getActivities(
-		page: number,
-		perPage: number,
-	): Observable<DetailedActivity[]> {
-		const endpoint = `athlete/activities`;
-		const options = {
-			params: {
-				page: page.toString(),
-				per_page: perPage.toString(),
-			},
-		};
-		return this.stravaApiService.request<DetailedActivity[]>(
-			'GET',
-			endpoint,
-			options,
-		);
-	}
+    reloadAllActivities() {
+        this.clearStoredActivities();
+        this.loadActivitiesRecursive(1);
+    }
 
-	private loadActivitiesRecursive(page: number): void {
-		this.getActivities(page, this.perPageSize)
-			.subscribe({
-				next: (avs: DetailedActivity[]) => {
-					if (avs.length > 0) {
-						this.storeActivities(page, avs);
-						if (page === 1) {
-							this.isFirstPageFetched$.next(true);
-						}
-						// Load the next page
-						this.loadActivitiesRecursive(page + 1);
-					} else {
-						this.finishLoading();
-					}
-				},
-				error: (error) => {
-					console.error('Error loading activities:', error);
-				},
-			});
-	}
+    /**
+     * Will fetch the most recent activity and check if it's in the localStorgae
+     */
+    hasNewActivities(): Observable<boolean> {
+        const storedActivities = this.getStoredActivities(1);
+        if (storedActivities) {
+            return this.getActivities(1, 1)
+                .pipe(
+                    map((activities: DetailedActivity[]) => activities && activities.length > 0 && storedActivities.findIndex((value) => value.id === activities[0].id) === -1)
+                );
+        } else {
+            return of(true);
+        }
+    }
 
-	private finishLoading() {
-		this.isFirstPageFetched$.next(true);
-		this.isLoadingActivities$.next(false);
-	}
+    /**
+     * Will try a fetch of the last page found in localStorage + 1 and returns true if elements are found
+     */
+    isNotDoneFetching(): Observable<boolean> {
+        const storedActivities = this.getStoredActivities(1);
+        if (storedActivities) {
+            const lastFetchedPage = this.getStoredActivitiesLastPage();
+            return this.getActivities(lastFetchedPage, this.perPageSize)
+                .pipe(
+                    map((activities: DetailedActivity[]) => activities && activities.length > 0)
+                );
+        } else {
+            return of(true);
+        }
+    }
 
-	private storeActivities(page: number, activities: DetailedActivity[]) {
-		// Store activities in localStorage
-		localStorage.setItem(
-			`activities_page_${page}`,
-			JSON.stringify(activities),
-		);
-	}
+    getActivities(
+        page: number,
+        perPage: number,
+    ): Observable<DetailedActivity[]> {
+        const endpoint = `athlete/activities`;
+        const options = {
+            params: {
+                page: page.toString(),
+                per_page: perPage.toString(),
+            },
+        };
+        return this.stravaApiService.request<DetailedActivity[]>(
+            'GET',
+            endpoint,
+            options,
+        );
+    }
 
-	getStoredActivities(page: number): DetailedActivity[] | null {
-		// Retrieve activities from localStorage
-		const storedActivities = localStorage.getItem(
-			`activities_page_${page}`,
-		);
-		return storedActivities ? JSON.parse(storedActivities) : null;
-	}
+    private loadActivitiesRecursive(page: number): void {
+        this.getActivities(page, this.perPageSize)
+            .subscribe({
+                next: (avs: DetailedActivity[]) => {
+                    if (avs.length > 0) {
+                        this.storeActivities(page, avs);
+                        if (page === 1) {
+                            this.isFirstPageFetched$.next(true);
+                        }
+                        // Load the next page
+                        this.loadActivitiesRecursive(page + 1);
+                    } else {
+                        this.finishLoading();
+                    }
+                },
+                error: (error) => {
+                    console.error('Error loading activities:', error);
+                },
+            });
+    }
 
-	private clearStoredActivities() {
-		// Clear all stored activities in localStorage
-		let page = 1;
-		let removed = false;
+    private finishLoading() {
+        this.isFirstPageFetched$.next(true);
+        this.isLoadingActivities$.next(false);
+    }
 
-		while (page <= 99999) {
-			const key = `activities_page_${page}`;
-			const storedActivities = localStorage.getItem(key);
+    private storeActivities(page: number, activities: DetailedActivity[]) {
+        // Store activities in localStorage
+        localStorage.setItem(
+            `activities_page_${page}`,
+            JSON.stringify(activities),
+        );
+    }
 
-			if (storedActivities) {
-				localStorage.removeItem(key);
-				removed = true;
-			} else {
-				// Break the loop if no item is found
-				break;
-			}
+    getStoredActivities(page: number): DetailedActivity[] | null {
+        // Retrieve activities from localStorage
+        const storedActivities = localStorage.getItem(
+            `activities_page_${page}`,
+        );
+        return storedActivities ? JSON.parse(storedActivities) : null;
+    }
 
-			page++;
-		}
+    private getStoredActivitiesLastPage(): number {
+        let page = 1;
+        while (localStorage.getItem(`activities_page_${page}`)) {
+            page++;
+        }
+        return page;
+    }
 
-		if (removed) {
-			console.log('Stored activities cleared successfully.');
-		} else {
-			console.log('No stored activities found to clear.');
-		}
-	}
+    private clearStoredActivities() {
+        // Clear all stored activities in localStorage
+        let page = 1;
+        let removed = false;
+
+        while (page <= 99999) {
+            const key = `activities_page_${page}`;
+            const storedActivities = localStorage.getItem(key);
+
+            if (storedActivities) {
+                localStorage.removeItem(key);
+                removed = true;
+            } else {
+                // Break the loop if no item is found
+                break;
+            }
+
+            page++;
+        }
+
+        if (removed) {
+            console.log('Stored activities cleared successfully.');
+        } else {
+            console.log('No stored activities found to clear.');
+        }
+    }
 
 }

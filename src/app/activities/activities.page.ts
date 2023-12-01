@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { InfiniteScrollCustomEvent, LoadingController, RefresherCustomEvent, } from '@ionic/angular';
 import { StravaActivitiesService } from '../services/strava-activities.service';
 import { DetailedActivity } from '../model/strava';
-import { map, take, timer } from 'rxjs';
+import { mergeMap, take, timer } from 'rxjs';
 
 @Component({
 	selector: 'app-activities',
@@ -35,7 +35,7 @@ export class ActivitiesPage implements OnInit {
 		});
 		timer(100).pipe(
 			take(1),
-			map(ignored => this.stravaActivitiesService.isFirstPageFetched),
+			mergeMap(ignored => this.stravaActivitiesService.isFirstPageFetched),
 		).subscribe(firstPageIsFetched => {
 			if (firstPageIsFetched) {
 				this.loadRecentActivities(1, () => {});
@@ -45,15 +45,23 @@ export class ActivitiesPage implements OnInit {
 	}
 
 	refresh(ev: any) {
-		(ev as RefresherCustomEvent).detail.complete();
+		this.stravaActivitiesService.hasNewActivities().subscribe(hasNewActivities => {
+			if (hasNewActivities) {
+				this.activities = [];
+				(ev as RefresherCustomEvent).detail.complete();
+				this.stravaActivitiesService.reloadAllActivities();
+			} else {
+				(ev as RefresherCustomEvent).detail.complete();
+			}
+		})
 	}
 
 	loadRecentActivities(page: number, callback: Function) {
 		const storedActivities = this.stravaActivitiesService.getStoredActivities(page);
-		if (storedActivities) {
+		if (storedActivities && !storedActivities.every((value) => this.activities.includes(value))) {
 			this.activities = this.activities.concat(storedActivities);
-			callback();
 		}
+		callback();
 	}
 
 	fetchNextActivities($event: any) {
