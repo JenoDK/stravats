@@ -8,6 +8,8 @@ import { ActivitiesPageRoutingModule } from './activities-routing.module';
 
 import { ActivitiesPage } from './activities.page';
 import { ActivityComponentModule } from '../activity/activity.module';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { ActivityFilterMapComponentModule } from '../activity-filter-map/activity-filter-map.module';
 
 @NgModule({
 	imports: [
@@ -16,7 +18,10 @@ import { ActivityComponentModule } from '../activity/activity.module';
 		IonicModule,
 		ActivitiesPageRoutingModule,
 		ActivityComponentModule,
+		FontAwesomeModule,
+		ActivityFilterMapComponentModule
 	],
 	declarations: [ActivitiesPage],
 })
-export class ActivitiesPageModule {}
+export class ActivitiesPageModule {
+}

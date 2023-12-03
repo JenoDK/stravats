@@ -1,28 +1,54 @@
-<ion-header [translucent]="true">
-	<ion-toolbar>
-		<ion-title>Activities</ion-title>
-	</ion-toolbar>
+<ion-header collapse="fade">
+    <ion-toolbar>
+        <ion-buttons slot="start" >
+            <ion-button id="open-modal-filter-map" class="filter-button">
+                <fa-icon class="filter-icon" icon="map"></fa-icon>
+                Map Filter
+            </ion-button>
+        </ion-buttons>
+        <ion-title>Activities</ion-title>
+        <ion-buttons slot="end">
+            <ion-button id="open-modal-filters" class="filter-button">
+                <fa-icon class="filter-icon" icon="filter"></fa-icon>
+                Filter
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-	<ion-header collapse="condense">
-		<ion-toolbar>
-			<ion-title size="large">Activities</ion-title>
-		</ion-toolbar>
-	</ion-header>
 
-	<ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
-		<ion-refresher-content></ion-refresher-content>
-	</ion-refresher>
+    <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+        <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
 
-	<ion-list>
-		<app-activity
-			*ngFor="let activity of activities"
-			[activity]="activity"
-		></app-activity>
-	</ion-list>
+    <ion-list>
+        <app-activity
+                *ngFor="let activity of activities"
+                [activity]="activity"
+        ></app-activity>
+    </ion-list>
 
-	<ion-infinite-scroll (ionInfinite)="fetchNextActivities($event)">
-		<ion-infinite-scroll-content></ion-infinite-scroll-content>
-	</ion-infinite-scroll>
+    <ion-infinite-scroll (ionInfinite)="fetchNextActivities($event)">
+        <ion-infinite-scroll-content></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+
+    <ion-modal #modal trigger="open-modal-filter-map" [initialBreakpoint]="0.80">
+        <ng-template>
+            <ion-header>
+                <ion-toolbar>
+                    <ion-title>Filters</ion-title>
+                    <ion-buttons slot="start">
+                        <ion-button (click)="modal.dismiss()">Close</ion-button>
+                    </ion-buttons>
+                    <ion-buttons slot="end">
+                        <ion-button (click)="modal.dismiss()">Apply</ion-button>
+                    </ion-buttons>
+                </ion-toolbar>
+            </ion-header>
+            <ion-content [forceOverscroll]="false">
+                <app-activity-filter-map/>
+            </ion-content>
+        </ng-template>
+    </ion-modal>
 </ion-content>

@@ -1,15 +1,9 @@
-<ion-header [translucent]="true">
+<ion-header collapse="fade">
 	<ion-toolbar>
-		<ion-title> Profile </ion-title>
+		<ion-title>Profile</ion-title>
 	</ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-	<ion-header collapse="condense">
-		<ion-toolbar>
-			<ion-title size="large"> Profile </ion-title>
-		</ion-toolbar>
-	</ion-header>
-
 	<app-profile [completeAthlete]="completeAthlete | async"></app-profile>
 </ion-content>

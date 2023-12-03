@@ -1,0 +1,22 @@
+ion-list.map-search-suggestions {
+	position: absolute;
+	top: 49px;
+	left: 0;
+	right: 0;
+	z-index: 9999;
+}
+
+.filter-map-container {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;  // Set the height of the parent container to the full viewport height
+}
+
+ion-searchbar {
+	flex-shrink: 0.07;  // Prevent the search bar from shrinking
+}
+
+.filter-map {
+	flex-grow: 0.93;  // Allow the map div to grow and take the remaining space
+	width: 100%;
+}

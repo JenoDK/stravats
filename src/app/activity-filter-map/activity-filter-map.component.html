@@ -1,0 +1,11 @@
+<div class="filter-map-container">
+    <div class="search-and-radius">
+        <ion-searchbar [debounce]="200" (ionInput)="search($event)"></ion-searchbar>
+    </div>
+    <ion-list class="map-search-suggestions">
+        <ion-item *ngFor="let result of searchResults">
+            <ion-label (click)="setMap(result)">{{ result.label }}</ion-label>
+        </ion-item>
+    </ion-list>
+    <div class="filter-map" id="filter-map"></div>
+</div>
