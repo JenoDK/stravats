@@ -20,3 +20,7 @@ ion-searchbar {
 	flex-grow: 0.93;  // Allow the map div to grow and take the remaining space
 	width: 100%;
 }
+
+ion-header ion-toolbar:first-of-type {
+	padding-top: 0 !important;
+}

@@ -3,6 +3,7 @@ import * as Leaflet from 'leaflet';
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import { SearchResult } from 'leaflet-geosearch/src/providers/provider';
 import { ActivitiesFilterStore } from '../stores/activities-filter-store';
+import { Geolocation } from '@capacitor/geolocation';
 
 @Component({
     selector: 'app-activity-filter-map',
@@ -25,6 +26,20 @@ export class ActivityFilterMapComponent implements OnInit {
         this.initMap();
     }
 
+    setMapToCurrentPosition = async () => {
+        if (localStorage.getItem('geo-location')) {
+            this.map.setView(JSON.parse(localStorage.getItem('geo-location')), 13);
+        } else {
+            this.map.setView([50.85045, 4.34878], 10);
+        }
+        const coordinates = await Geolocation.getCurrentPosition();
+        if (coordinates) {
+            console.debug('Location found', coordinates);
+            localStorage.setItem('geo-location', JSON.stringify([coordinates.coords.latitude, coordinates.coords.longitude]));
+            this.map.setView([coordinates.coords.latitude, coordinates.coords.longitude], 13);
+        }
+    };
+
     initMap() {
         const mapDiv = document.getElementById('filter-map');
         // If a location was previously found use it else brussels
@@ -32,11 +47,7 @@ export class ActivityFilterMapComponent implements OnInit {
         if (this.location) {
             this.map.setView(this.location, 13);
         } else {
-            this.map.locate({ setView: true, maxZoom: 16 })
-                .on('locationfound', function (e) {
-                    this.map.setView(e.latlng, 16);
-                })
-                .on('locationerror', () => this.map.setView([50.85045, 4.34878], 16));
+            this.setMapToCurrentPosition();
         }
         Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -47,7 +58,6 @@ export class ActivityFilterMapComponent implements OnInit {
             this.map.invalidateSize();
         });
         resizeObserver.observe(mapDiv);
-        this.map.invalidateSize()
         this.map.on('click', (event) => {
             this.location = event.latlng;
             this.addMarkerWithCircle(event.latlng);
