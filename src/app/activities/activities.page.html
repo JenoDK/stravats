@@ -24,7 +24,7 @@
 
     <ion-list>
         <app-activity
-                *ngFor="let activity of activities"
+                *ngFor="let activity of activitiesStore.$activities()"
                 [activity]="activity"
         ></app-activity>
     </ion-list>
@@ -35,20 +35,9 @@
 
     <ion-modal #modal trigger="open-modal-filter-map" [initialBreakpoint]="0.80">
         <ng-template>
-            <ion-header>
-                <ion-toolbar>
-                    <ion-title>Filters</ion-title>
-                    <ion-buttons slot="start">
-                        <ion-button (click)="modal.dismiss()">Close</ion-button>
-                    </ion-buttons>
-                    <ion-buttons slot="end">
-                        <ion-button (click)="modal.dismiss()">Apply</ion-button>
-                    </ion-buttons>
-                </ion-toolbar>
-            </ion-header>
-            <ion-content [forceOverscroll]="false">
-                <app-activity-filter-map/>
-            </ion-content>
+            <app-activity-filter-map
+                (modalClosed)="modal.dismiss()"
+            ></app-activity-filter-map>
         </ng-template>
     </ion-modal>
 </ion-content>
