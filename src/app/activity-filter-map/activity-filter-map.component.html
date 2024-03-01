@@ -1,3 +1,15 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>Filters</ion-title>
+        <ion-buttons slot="start">
+            <ion-button (click)="modalClosed.emit()">Close</ion-button>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-button (click)="applyFilters()">Apply</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
 <div class="filter-map-container">
     <div class="search-and-radius">
         <ion-searchbar [debounce]="200" (ionInput)="search($event)"></ion-searchbar>

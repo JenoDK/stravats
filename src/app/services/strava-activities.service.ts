@@ -1,12 +1,15 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { StravaApiService } from './strava-api.service';
-import { BehaviorSubject, map, Observable, of } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, of } from 'rxjs';
 import { DetailedActivity } from '../model/strava';
+import { StravaAuthService } from './strava-auth.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class StravaActivitiesService {
+    private readonly stravaAuthService: StravaAuthService = inject(StravaAuthService);
+
     private readonly perPageSize = 50;
 
     private isLoadingActivities$: BehaviorSubject<boolean> = new BehaviorSubject(
@@ -20,6 +23,11 @@ export class StravaActivitiesService {
     public isFirstPageFetched = this.isFirstPageFetched$.asObservable();
 
     constructor(private stravaApiService: StravaApiService) {
+        this.stravaAuthService.isAuthenticated.pipe(
+            filter(isAuthenticated => isAuthenticated)
+        ).subscribe(() => {
+            this.loadAllActivities();
+        });
     }
 
     loadAllActivities() {
@@ -135,6 +143,16 @@ export class StravaActivitiesService {
             `activities_page_${page}`,
             JSON.stringify(activities),
         );
+    }
+
+    getAllStoredActivities(): DetailedActivity[] | null {
+        let page = 1;
+        let activities: DetailedActivity[] = [];
+        while (localStorage.getItem(`activities_page_${page}`)) {
+            activities = activities.concat(this.getStoredActivities(page));
+            page++;
+        }
+        return activities;
     }
 
     getStoredActivities(page: number): DetailedActivity[] | null {

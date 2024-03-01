@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import * as Leaflet from 'leaflet';
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import { SearchResult } from 'leaflet-geosearch/src/providers/provider';
+import { ActivitiesFilterStore } from '../stores/activities-filter-store';
 
 @Component({
     selector: 'app-activity-filter-map',
@@ -9,12 +10,13 @@ import { SearchResult } from 'leaflet-geosearch/src/providers/provider';
     styleUrls: ['./activity-filter-map.component.scss'],
 })
 export class ActivityFilterMapComponent implements OnInit {
+    private readonly filterStore: ActivitiesFilterStore = inject(ActivitiesFilterStore);
+
+    @Output() public modalClosed = new EventEmitter<void>();
     private map: any;
     public searchResults: SearchResult[] = [];
-    private selectedPosition: Leaflet.LatLng;
-
-    constructor() {
-    }
+    private location: Leaflet.LatLng = this.filterStore.$location();
+    private radius: number = this.filterStore.$radius();
 
     ngOnInit(): void {
     }
@@ -25,14 +27,16 @@ export class ActivityFilterMapComponent implements OnInit {
 
     initMap() {
         const mapDiv = document.getElementById('filter-map');
-        // If a location was previously found use it else london
-        const startingLocation = localStorage.getItem('geo-location') ? JSON.parse(localStorage.getItem('geo-location')) : [51.505, -0.09];
-        this.map = Leaflet.map(mapDiv, { doubleClickZoom: false }).setView(startingLocation, 13);
-        if (navigator.geolocation) {
+        // If a location was previously found use it else brussels
+        this.map = Leaflet.map(mapDiv, { doubleClickZoom: false });
+        if (this.location) {
+            this.map.setView(this.location, 13);
+        } else {
             this.map.locate({ setView: true, maxZoom: 16 })
                 .on('locationfound', function (e) {
-                    localStorage.setItem('geo-location', JSON.stringify([e.latitude, e.longitude]));
-                });
+                    this.map.setView(e.latlng, 16);
+                })
+                .on('locationerror', () => this.map.setView([50.85045, 4.34878], 16));
         }
         Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -43,10 +47,14 @@ export class ActivityFilterMapComponent implements OnInit {
             this.map.invalidateSize();
         });
         resizeObserver.observe(mapDiv);
+        this.map.invalidateSize()
         this.map.on('click', (event) => {
-            this.selectedPosition = event.latlng;
+            this.location = event.latlng;
             this.addMarkerWithCircle(event.latlng);
         });
+        if (this.location) {
+            this.addMarkerWithCircle(this.location);
+        }
     }
 
     private addMarkerWithCircle(latlng: Leaflet.LatLng): void {
@@ -63,7 +71,7 @@ export class ActivityFilterMapComponent implements OnInit {
             color: stravaRed,
             fillColor: stravaRed,
             fillOpacity: 0.2,
-            radius: 1000, // Radius in meters
+            radius: this.radius, // Radius in meters
         }).addTo(this.map);
     }
 
@@ -80,5 +88,11 @@ export class ActivityFilterMapComponent implements OnInit {
     setMap(result: SearchResult) {
         this.map.setView([result.y, result.x], 13);
         this.searchResults = [];
+    }
+
+    applyFilters() {
+        this.filterStore.setLocation(this.location);
+        this.filterStore.setRadius(this.radius);
+        this.modalClosed.emit();
     }
 }
