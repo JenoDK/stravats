@@ -21,12 +21,11 @@
         <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <cdk-virtual-scroll-viewport itemSize="236" maxBufferPx="1180" class="ion-content-scroll-host">
+    <cdk-virtual-scroll-viewport itemSize="236" minBufferPx="237" maxBufferPx="1180" class="ion-content-scroll-host">
         <ion-list>
-            <app-activity
-                    *cdkVirtualFor="let activity of activitiesStore.$filteredActivities(); templateCacheSize: 0"
-                    [activity]="activity"
-            ></app-activity>
+			<ion-item *cdkVirtualFor="let activity of activitiesStore.$filteredActivities(); templateCacheSize: 0">
+				<app-activity [activity]="activity"></app-activity>
+			</ion-item>
         </ion-list>
     </cdk-virtual-scroll-viewport>
 

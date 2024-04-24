@@ -30,25 +30,27 @@ export class ActivityComponent implements OnInit {
 	}
 
 	initMap() {
-		const decoded = decode(this.activity.map.summary_polyline);
-		const mapDiv = document.getElementById(`map-${this.activity.id}`);
-
-		if (decoded.length > 0) {
+		if (this.activity.map.summary_polyline) {
+			const mapDiv = document.getElementById(`map-${this.activity.id}`);
 			const map = Leaflet.map(mapDiv, { zoomControl: false });
 			Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 			}).addTo(map);
-			Leaflet.polyline(decoded, { color: 'orange' }).addTo(map);
 			map._handlers.forEach(function(handler) {
 				handler.disable();
 			});
-			const bounds = new Leaflet.LatLngBounds(decoded);
-			function fitMapToPolyline() {
-				const resizeObserver = new ResizeObserver(() => {
-					map.fitBounds(bounds);
-				});
-				resizeObserver.observe(mapDiv);
+
+			const decoded = decode(this.activity.map.summary_polyline);
+			if (decoded.length > 0) {
+				Leaflet.polyline(decoded, { color: 'orange' }).addTo(map);
+				const bounds = new Leaflet.LatLngBounds(decoded);
+				function fitMapToPolyline() {
+					const resizeObserver = new ResizeObserver(() => {
+						map.fitBounds(bounds);
+					});
+					resizeObserver.observe(mapDiv);
+				}
+				setTimeout(() => fitMapToPolyline(), 200);
 			}
-			fitMapToPolyline();
 		}
 	}
 
