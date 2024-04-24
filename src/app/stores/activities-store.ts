@@ -1,15 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { DetailedActivity } from '../model/strava';
-import { distinctUntilChanged, filter, mergeMap, Observable, take, timer } from 'rxjs';
-import { StravaActivitiesService } from '../services/strava-activities.service';
-import { InfiniteScrollCustomEvent, RefresherCustomEvent } from '@ionic/angular';
+import { distinctUntilChanged, filter, Observable } from 'rxjs';
+import { InfiniteScrollCustomEvent } from '@ionic/angular';
 import { decode } from 'google-polyline';
 import { ActivitiesFilterStore } from './activities-filter-store';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
 @Injectable({ providedIn: 'root' })
 export class ActivitiesStore {
-    private readonly stravaActivitiesService: StravaActivitiesService = inject(StravaActivitiesService);
     private readonly filterStore = inject(ActivitiesFilterStore);
     private readonly state = {
         $loading: signal<boolean>(false),
@@ -21,88 +19,69 @@ export class ActivitiesStore {
     public readonly $activities = this.state.$activities.asReadonly();
     public readonly $filteredActivities = this.state.$filteredActivities.asReadonly();
 
-    private currentPage: number = 1;
-
     constructor() {
-        this.stravaActivitiesService.isLoadingActivities.pipe(
+        this.filterStore.$filterChanged.pipe(
+            filter(filter => !!filter),
             distinctUntilChanged(),
             takeUntilDestroyed()
-        ).subscribe(isLoading => this.state.$loading.set(isLoading));
-        timer(100).pipe(
-            take(1),
-            mergeMap(ignored => this.stravaActivitiesService.isFirstPageFetched),
-        ).subscribe(firstPageIsFetched => {
-            if (firstPageIsFetched) {
-                this.loadRecentActivities(1);
-                this.state.$loading.set(false);
-            }
-        });
-        this.filterStore.$locationObs.pipe(
-            filter(loc => !!loc),
-            distinctUntilChanged(),
-            takeUntilDestroyed()
-        ).subscribe(loc => {
+        ).subscribe(() => {
             this.state.$loading.set(true);
-            this.state.$activities.set(this.stravaActivitiesService.getAllStoredActivities().filter(activity => {
-                var should_include = true;
-                const location = this.filterStore.$location();
-                if (location) {
-                    if (activity.map) {
-                        let coordinateIn5KmRadiusOfPosition = decode(activity.map.summary_polyline).find((latlng) => {
-                            let distanceBetweenPoints = location.distanceTo({
-                                lat: latlng[0],
-                                lng: latlng[1]
-                            });
-                            return distanceBetweenPoints < 2000;
-                        });
-                        should_include = should_include && coordinateIn5KmRadiusOfPosition != undefined;
-                    } else {
-                        should_include = false;
-                    }
-                }
-                return should_include;
-            }));
+            this.setFilteredActivities();
             this.state.$loading.set(false);
         })
+    }
+
+    isLoading(isLoading: boolean) {
+        this.state.$loading.set(isLoading);
     }
 
     fetchNextPage($event: any) {
         if ($event) {
             ($event as InfiniteScrollCustomEvent).target.complete();
         }
-        // this.currentPage++;
-        // this.loadRecentActivities(
-        //     this.currentPage,
-        //     () => {
-        //         if ($event) {
-        //             ($event as InfiniteScrollCustomEvent).target.complete();
-        //         }
-        //     },
-        // );
     }
 
-    refresh(ev: any) {
-        this.stravaActivitiesService.hasNewActivities().subscribe(hasNewActivities => {
-            if (hasNewActivities) {
-                this.reset();
-                this.stravaActivitiesService.reloadAllActivities();
+    reset() {
+        this.setActivities([]);
+    }
+
+    addActivities(activities: DetailedActivity[]) {
+        this.setActivities(this.$activities().concat(activities));
+    }
+
+    private setActivities(activities: DetailedActivity[]) {
+        this.state.$activities.set(activities);
+        this.setFilteredActivities();
+    }
+
+    private setFilteredActivities() {
+        this.state.$filteredActivities.set(this.applyFilters(this.$activities()));
+    }
+
+    private applyFilters(activities: DetailedActivity[]): DetailedActivity[] {
+        const a = performance.now();
+        console.debug('Filtering all activities, length ' + activities?.length);
+        let filteredActivities = activities.filter(activity => {
+            var should_include = true;
+            const location = this.filterStore.$location();
+            if (location) {
+                if (activity.map) {
+                    let coordinateIn5KmRadiusOfPosition = decode(activity.map.summary_polyline).find((latlng) => {
+                        let distanceBetweenPoints = location.distanceTo({
+                            lat: latlng[0],
+                            lng: latlng[1]
+                        });
+                        return distanceBetweenPoints < 2000;
+                    });
+                    should_include = should_include && coordinateIn5KmRadiusOfPosition != undefined;
+                } else {
+                    should_include = false;
+                }
             }
-            (ev as RefresherCustomEvent).detail.complete();
-        })
+            return should_include;
+        });
+        const b = performance.now();
+        console.debug('It took ' + (b - a) + ' ms.');
+        return filteredActivities;
     }
-
-    private loadRecentActivities(page: number, callback: Function = () => {
-    }) {
-        const storedActivities = this.stravaActivitiesService.getStoredActivities(page);
-        if (storedActivities && !storedActivities.every((value) => this.$activities().includes(value))) {
-            this.state.$activities.set(this.$activities().concat(storedActivities));
-        }
-        callback();
-    }
-
-    private reset() {
-        this.state.$activities.set([]);
-        this.state.$filteredActivities.set([]);
-    }
-
 }

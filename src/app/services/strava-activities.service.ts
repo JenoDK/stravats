@@ -1,26 +1,18 @@
 import { inject, Injectable } from '@angular/core';
 import { StravaApiService } from './strava-api.service';
-import { BehaviorSubject, filter, map, Observable, of } from 'rxjs';
+import { filter, map, Observable, of } from 'rxjs';
 import { DetailedActivity } from '../model/strava';
 import { StravaAuthService } from './strava-auth.service';
+import { ActivitiesStore } from '../stores/activities-store';
+import { RefresherCustomEvent } from '@ionic/angular';
 
 @Injectable({
     providedIn: 'root',
 })
 export class StravaActivitiesService {
     private readonly stravaAuthService: StravaAuthService = inject(StravaAuthService);
-
+    private readonly activitiesStore: ActivitiesStore = inject(ActivitiesStore);
     private readonly perPageSize = 50;
-
-    private isLoadingActivities$: BehaviorSubject<boolean> = new BehaviorSubject(
-        false,
-    );
-    public isLoadingActivities = this.isLoadingActivities$.asObservable();
-
-    private isFirstPageFetched$: BehaviorSubject<boolean> = new BehaviorSubject(
-        false,
-    );
-    public isFirstPageFetched = this.isFirstPageFetched$.asObservable();
 
     constructor(private stravaApiService: StravaApiService) {
         this.stravaAuthService.isAuthenticated.pipe(
@@ -31,7 +23,7 @@ export class StravaActivitiesService {
     }
 
     loadAllActivities() {
-        this.isLoadingActivities$.next(true);
+        this.activitiesStore.isLoading(true);
         this.hasNewActivities()
             .subscribe(hasNewActivities => {
                 // If we have new activities, we restart the fetch completely. We can try to be smart but this is fine.
@@ -46,6 +38,7 @@ export class StravaActivitiesService {
                                     this.loadActivitiesRecursive(this.getStoredActivitiesLastPage());
                                 } else {
                                     this.finishLoading();
+                                    this.activitiesStore.addActivities(this.getAllStoredActivities());
                                 }
                             },
                             error: () => {
@@ -60,6 +53,21 @@ export class StravaActivitiesService {
     reloadAllActivities() {
         this.clearStoredActivities();
         this.loadActivitiesRecursive(1);
+    }
+
+    refresh(ev: any) {
+        this.hasNewActivities().subscribe({
+            next: (hasNewActivities) => {
+                if (hasNewActivities) {
+                    this.activitiesStore.reset();
+                    this.reloadAllActivities();
+                }
+                (ev as RefresherCustomEvent).detail.complete();
+            },
+            error: () => {
+                (ev as RefresherCustomEvent).detail.complete();
+            },
+        });
     }
 
     /**
@@ -117,9 +125,6 @@ export class StravaActivitiesService {
                 next: (avs: DetailedActivity[]) => {
                     if (avs.length > 0) {
                         this.storeActivities(page, avs);
-                        if (page === 1) {
-                            this.isFirstPageFetched$.next(true);
-                        }
                         // Load the next page
                         this.loadActivitiesRecursive(page + 1);
                     } else {
@@ -133,8 +138,7 @@ export class StravaActivitiesService {
     }
 
     private finishLoading() {
-        this.isFirstPageFetched$.next(true);
-        this.isLoadingActivities$.next(false);
+        this.activitiesStore.isLoading(false);
     }
 
     private storeActivities(page: number, activities: DetailedActivity[]) {
@@ -143,6 +147,7 @@ export class StravaActivitiesService {
             `activities_page_${page}`,
             JSON.stringify(activities),
         );
+        this.activitiesStore.addActivities(activities);
     }
 
     getAllStoredActivities(): DetailedActivity[] | null {
@@ -172,6 +177,8 @@ export class StravaActivitiesService {
     }
 
     private clearStoredActivities() {
+        // Clear all activities in store
+        this.activitiesStore.reset();
         // Clear all stored activities in localStorage
         let page = 1;
         let removed = false;

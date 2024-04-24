@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import * as Leaflet from 'leaflet';
 import { toObservable } from '@angular/core/rxjs-interop';
 
@@ -10,8 +10,13 @@ export class ActivitiesFilterStore {
     } as const;
 
     public readonly $location = this.state.$location.asReadonly();
-    public readonly $locationObs = toObservable(this.state.$location);
     public readonly $radius = this.state.$radius.asReadonly();
+    public readonly $filterChanged = toObservable(computed(() => {
+        return {
+            location: this.$location(),
+            radius: this.$radius(),
+        }
+    }));
 
     setLocation(location: Leaflet.LatLng) {
         this.state.$location.set(location);

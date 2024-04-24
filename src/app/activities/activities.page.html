@@ -16,27 +16,24 @@
     </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-
+<ion-content [fullscreen]="true" [scrollY]="false">
     <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
         <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <ion-list>
-        <app-activity
-                *ngFor="let activity of activitiesStore.$activities()"
-                [activity]="activity"
-        ></app-activity>
-    </ion-list>
-
-    <ion-infinite-scroll (ionInfinite)="fetchNextActivities($event)">
-        <ion-infinite-scroll-content></ion-infinite-scroll-content>
-    </ion-infinite-scroll>
+    <cdk-virtual-scroll-viewport itemSize="236" maxBufferPx="1180" class="ion-content-scroll-host">
+        <ion-list>
+            <app-activity
+                    *cdkVirtualFor="let activity of activitiesStore.$filteredActivities(); templateCacheSize: 0"
+                    [activity]="activity"
+            ></app-activity>
+        </ion-list>
+    </cdk-virtual-scroll-viewport>
 
     <ion-modal #modal trigger="open-modal-filter-map" [initialBreakpoint]="0.80">
         <ng-template>
             <app-activity-filter-map
-                (modalClosed)="modal.dismiss()"
+                    (modalClosed)="modal.dismiss()"
             ></app-activity-filter-map>
         </ng-template>
     </ion-modal>

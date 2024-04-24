@@ -10,6 +10,7 @@ import { ActivitiesPage } from './activities.page';
 import { ActivityComponentModule } from '../activity/activity.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ActivityFilterMapComponentModule } from '../activity-filter-map/activity-filter-map.module';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
 	imports: [
@@ -19,7 +20,8 @@ import { ActivityFilterMapComponentModule } from '../activity-filter-map/activit
 		ActivitiesPageRoutingModule,
 		ActivityComponentModule,
 		FontAwesomeModule,
-		ActivityFilterMapComponentModule
+		ActivityFilterMapComponentModule,
+		ScrollingModule
 	],
 	declarations: [ActivitiesPage],
 })

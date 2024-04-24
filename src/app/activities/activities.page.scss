@@ -5,3 +5,8 @@
 .filter-button {
 	--padding-end: 8px;
 }
+
+cdk-virtual-scroll-viewport, .cdk-virtual-scroll-content-wrapper {
+	height: 100%;
+	width: 100%;
+}
