@@ -6,10 +6,14 @@ ion-list.map-search-suggestions {
 	z-index: 9999;
 }
 
+ion-header {
+	height: 10%;
+}
+
 .filter-map-container {
 	display: flex;
 	flex-direction: column;
-	height: 100vh;  // Set the height of the parent container to the full viewport height
+	height: 90%;
 }
 
 ion-searchbar {

@@ -32,7 +32,8 @@
     <ion-modal #modal trigger="open-modal-filter-map" [initialBreakpoint]="0.80">
         <ng-template>
             <app-activity-filter-map
-                    (modalClosed)="modal.dismiss()"
+				class="activity-filter-popup"
+				(modalClosed)="modal.dismiss()"
             ></app-activity-filter-map>
         </ng-template>
     </ion-modal>
