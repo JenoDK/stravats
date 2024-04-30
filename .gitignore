@@ -69,3 +69,4 @@ Thumbs.db
 /src/environments/environment.prod.ts
 /ios/
 /android/
+/release_hetzner.sh

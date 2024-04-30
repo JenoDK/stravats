@@ -11,13 +11,13 @@ import { Geolocation } from '@capacitor/geolocation';
     styleUrls: ['./activity-filter-map.component.scss'],
 })
 export class ActivityFilterMapComponent implements OnInit {
-    private readonly filterStore: ActivitiesFilterStore = inject(ActivitiesFilterStore);
+    readonly filterStore: ActivitiesFilterStore = inject(ActivitiesFilterStore);
 
     @Output() public modalClosed = new EventEmitter<void>();
     private map: any;
     public searchResults: SearchResult[] = [];
     private location: Leaflet.LatLng = this.filterStore.$location();
-    private radius: number = this.filterStore.$radius();
+	radius: number = this.filterStore.$radius();
 
     ngOnInit(): void {
     }
@@ -105,4 +105,10 @@ export class ActivityFilterMapComponent implements OnInit {
         this.filterStore.setRadius(this.radius);
         this.modalClosed.emit();
     }
+
+	setRadius($event: any) {
+		if ($event?.detail?.value) {
+			this.radius = $event.detail.value;
+		}
+	}
 }

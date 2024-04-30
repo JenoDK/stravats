@@ -16,10 +16,6 @@ ion-header {
 	height: 90%;
 }
 
-ion-searchbar {
-	flex-shrink: 0.07;  // Prevent the search bar from shrinking
-}
-
 .filter-map {
 	flex-grow: 0.93;  // Allow the map div to grow and take the remaining space
 	width: 100%;
@@ -27,4 +23,12 @@ ion-searchbar {
 
 ion-header ion-toolbar:first-of-type {
 	padding-top: 0 !important;
+}
+
+.search-and-radius {
+	display: flex;
+
+	.radius {
+		margin-left: auto;
+	}
 }

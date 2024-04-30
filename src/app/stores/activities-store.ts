@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { DetailedActivity } from '../model/strava';
 import { distinctUntilChanged, filter, Observable } from 'rxjs';
 import { InfiniteScrollCustomEvent } from '@ionic/angular';
@@ -17,7 +17,8 @@ export class ActivitiesStore {
 
     public readonly $loading: Observable<boolean> = toObservable(this.state.$loading);
     public readonly $activities = this.state.$activities.asReadonly();
-    public readonly $filteredActivities = this.state.$filteredActivities.asReadonly();
+	public readonly $activitiesLength = computed(() => this.state.$filteredActivities().length);
+	public readonly $filteredActivities = this.state.$filteredActivities.asReadonly();
 
     constructor() {
         this.filterStore.$filterChanged.pipe(

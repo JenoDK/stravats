@@ -13,6 +13,15 @@
 <div class="filter-map-container">
     <div class="search-and-radius">
         <ion-searchbar [debounce]="200" (ionInput)="search($event)"></ion-searchbar>
+		<ion-item class="radius">
+			<ion-input
+				label="Radius"
+				type="number"
+				placeholder="2000"
+				[value]="radius"
+				(ionInput)="setRadius($event)">
+			</ion-input>
+		</ion-item>
     </div>
     <ion-list *ngIf="searchResults && searchResults.length > 0" class="map-search-suggestions">
         <ion-item *ngFor="let result of searchResults">
