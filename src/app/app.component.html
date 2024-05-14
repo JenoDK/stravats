@@ -1,5 +1,5 @@
 <ion-app>
-	<ion-tabs class="ion-padding-bottom">
+	<ion-tabs>
 		<ion-tab-bar slot="bottom" class="custom-tab-bar">
 			<ion-tab-button
 				tab="home"
@@ -7,13 +7,15 @@
 				class="custom-tab-button"
 			>
 				<ion-icon name="home-outline"></ion-icon>
+				Home
 			</ion-tab-button>
 			<ion-tab-button
 				tab="activities"
 				routerLink="/activities"
 				class="custom-tab-button"
 			>
-				<ion-icon name="search-outline"></ion-icon>
+				<ion-icon name="list-outline"></ion-icon>
+				Activities
 			</ion-tab-button>
 			<ion-tab-button
 				tab="clear"
@@ -21,6 +23,7 @@
 				class="custom-tab-button"
 			>
 				<ion-icon name="trash"></ion-icon>
+				Clear storage (dev only)
 			</ion-tab-button>
 		</ion-tab-bar>
 	</ion-tabs>

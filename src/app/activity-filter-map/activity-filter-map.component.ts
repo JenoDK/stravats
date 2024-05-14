@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import * as Leaflet from 'leaflet';
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import { SearchResult } from 'leaflet-geosearch/src/providers/provider';
-import { ActivitiesFilterStore } from '../stores/activities-filter-store';
+import { ActivitiesFilterStore, DEFAULT_RADIUS, RadiusOption } from '../stores/activities-filter-store';
 import { Geolocation } from '@capacitor/geolocation';
 
 @Component({
@@ -17,7 +17,30 @@ export class ActivityFilterMapComponent implements OnInit {
     private map: any;
     public searchResults: SearchResult[] = [];
     private location: Leaflet.LatLng = this.filterStore.$location();
-	radius: number = this.filterStore.$radius();
+	radiusOption: RadiusOption = this.filterStore.$radius();
+	possibleRadiuses: RadiusOption[] = [
+		DEFAULT_RADIUS,
+		{
+			name: '5km',
+			radius: 5000
+		},
+		{
+			name: '10km',
+			radius: 10000
+		},
+		{
+			name: '25km',
+			radius: 25000
+		},
+		{
+			name: '100km',
+			radius: 100000
+		},
+		{
+			name: '1000km',
+			radius: 1000000
+		},
+	];
 
     ngOnInit(): void {
     }
@@ -81,7 +104,7 @@ export class ActivityFilterMapComponent implements OnInit {
             color: stravaRed,
             fillColor: stravaRed,
             fillOpacity: 0.2,
-            radius: this.radius, // Radius in meters
+            radius: this.radiusOption.radius, // Radius in meters
         }).addTo(this.map);
     }
 
@@ -102,13 +125,25 @@ export class ActivityFilterMapComponent implements OnInit {
 
     applyFilters() {
         this.filterStore.setLocation(this.location);
-        this.filterStore.setRadius(this.radius);
+        this.filterStore.setRadius(this.radiusOption);
         this.modalClosed.emit();
     }
 
 	setRadius($event: any) {
 		if ($event?.detail?.value) {
-			this.radius = $event.detail.value;
+			this.radiusOption = $event.detail.value;
+		}
+	}
+
+	headerResized($event: HTMLElement) {
+		if ($event && $event.getBoundingClientRect()) {
+			let searchAndRadiusHeight = $event.getBoundingClientRect().height;
+			let r = document.querySelector(':root') as HTMLElement;
+			const searchAndRadiusHeightCssProperty = '--search-and-radius-height';
+			const newHeight = `calc(${searchAndRadiusHeight}px + 44px)`;
+			if (newHeight !== r.style.getPropertyValue(searchAndRadiusHeightCssProperty)) {
+				r.style.setProperty(searchAndRadiusHeightCssProperty, newHeight);
+			}
 		}
 	}
 }

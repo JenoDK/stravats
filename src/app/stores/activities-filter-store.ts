@@ -2,11 +2,21 @@ import { computed, Injectable, signal } from '@angular/core';
 import * as Leaflet from 'leaflet';
 import { toObservable } from '@angular/core/rxjs-interop';
 
+export interface RadiusOption {
+	name: string;
+	radius: number;
+}
+
+export const DEFAULT_RADIUS: RadiusOption = {
+	name: '2km',
+	radius: 2000
+}
+
 @Injectable({ providedIn: 'root' })
 export class ActivitiesFilterStore {
     private readonly state = {
         $location: signal<Leaflet.LatLng>(undefined),
-        $radius: signal<number>(2000),
+        $radius: signal<RadiusOption>(DEFAULT_RADIUS),
     } as const;
 
     public readonly $location = this.state.$location.asReadonly();
@@ -22,7 +32,7 @@ export class ActivitiesFilterStore {
         this.state.$location.set(location);
     }
 
-    setRadius(radius: number) {
+    setRadius(radius: RadiusOption) {
         this.state.$radius.set(radius);
     }
 

@@ -129,7 +129,7 @@ export class StravaAuthService {
 			JSON.stringify(token),
 		);
 		this.token$.next(token);
-		this.router.navigate(['/home']);
+		this.router.navigate(['/activities']);
 	}
 
 	public clearAuthenticatedUser() {

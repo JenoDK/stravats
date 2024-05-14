@@ -11,17 +11,18 @@
 </ion-header>
 
 <div class="filter-map-container">
-    <div class="search-and-radius">
-        <ion-searchbar [debounce]="200" (ionInput)="search($event)"></ion-searchbar>
-		<ion-item class="radius">
-			<ion-input
-				label="Radius"
-				type="number"
-				placeholder="2000"
-				[value]="radius"
-				(ionInput)="setRadius($event)">
-			</ion-input>
-		</ion-item>
+    <div resize (resized)="headerResized($event)" class="search-and-radius">
+        <ion-searchbar class="search" [debounce]="200" (ionInput)="search($event)"></ion-searchbar>
+		<ion-select
+			class="radius"
+			aria-label="Radius"
+			placeholder="Select radius"
+			fill="outline"
+			(ionChange)="setRadius($event)"
+			[(ngModel)]="radiusOption"
+		>
+			<ion-select-option *ngFor="let radius of possibleRadiuses" [value]="radius">{{ radius.name }}</ion-select-option>
+		</ion-select>
     </div>
     <ion-list *ngIf="searchResults && searchResults.length > 0" class="map-search-suggestions">
         <ion-item *ngFor="let result of searchResults">

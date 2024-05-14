@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { DetailedActivity } from '../model/strava';
-import { distinctUntilChanged, filter, Observable } from 'rxjs';
+import { distinctUntilChanged, filter, Observable, skip } from 'rxjs';
 import { InfiniteScrollCustomEvent } from '@ionic/angular';
 import { decode } from 'google-polyline';
 import { ActivitiesFilterStore } from './activities-filter-store';
@@ -10,7 +10,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 export class ActivitiesStore {
     private readonly filterStore = inject(ActivitiesFilterStore);
     private readonly state = {
-        $loading: signal<boolean>(false),
+        $loading: signal<boolean>(true),
         $activities: signal<DetailedActivity[]>([]),
         $filteredActivities: signal<DetailedActivity[]>([]),
     } as const;
@@ -24,12 +24,13 @@ export class ActivitiesStore {
         this.filterStore.$filterChanged.pipe(
             filter(filter => !!filter),
             distinctUntilChanged(),
-            takeUntilDestroyed()
+            takeUntilDestroyed(),
+			skip(1),
         ).subscribe(() => {
             this.state.$loading.set(true);
             this.setFilteredActivities();
             this.state.$loading.set(false);
-        })
+		});
     }
 
     isLoading(isLoading: boolean) {
@@ -65,16 +66,17 @@ export class ActivitiesStore {
         let filteredActivities = activities.filter(activity => {
             var should_include = true;
             const location = this.filterStore.$location();
+            const radius = this.filterStore.$radius();
             if (location) {
                 if (activity.map) {
-                    let coordinateIn5KmRadiusOfPosition = decode(activity.map.summary_polyline).find((latlng) => {
+                    let coordinateInRadius = decode(activity.map.summary_polyline).find((latlng) => {
                         let distanceBetweenPoints = location.distanceTo({
                             lat: latlng[0],
                             lng: latlng[1]
                         });
-                        return distanceBetweenPoints < 2000;
+                        return distanceBetweenPoints < (radius ? radius.radius : 2000);
                     });
-                    should_include = should_include && coordinateIn5KmRadiusOfPosition != undefined;
+                    should_include = should_include && coordinateInRadius != undefined;
                 } else {
                     should_include = false;
                 }

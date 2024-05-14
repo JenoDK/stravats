@@ -1,19 +1,23 @@
+:root {
+	--search-and-radius-height: 100px;
+}
+
 ion-list.map-search-suggestions {
 	position: absolute;
-	top: 100px;
+	top: var(--search-and-radius-height);
 	left: 0;
 	right: 0;
 	z-index: 9999;
 }
 
 ion-header {
-	height: 10%;
+	//height: 10%;
 }
 
 .filter-map-container {
 	display: flex;
 	flex-direction: column;
-	height: 90%;
+	height: 100%;
 }
 
 .filter-map {
@@ -26,9 +30,16 @@ ion-header ion-toolbar:first-of-type {
 }
 
 .search-and-radius {
+	width: 100%;
 	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	.search {
+	}
 
 	.radius {
-		margin-left: auto;
+		flex-shrink: 5;
+		border-radius: var(--border-radius);
 	}
 }
