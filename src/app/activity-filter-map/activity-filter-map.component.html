@@ -19,8 +19,10 @@
 			placeholder="Select radius"
 			fill="outline"
 			(ionChange)="setRadius($event)"
-			[(ngModel)]="radiusOption"
-		>
+            [compareWith]="compareWith"
+            [value]="radiusOption"
+            value="years.id == 1"
+        >
 			<ion-select-option *ngFor="let radius of possibleRadiuses" [value]="radius">{{ radius.name }}</ion-select-option>
 		</ion-select>
     </div>

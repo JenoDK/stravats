@@ -41,6 +41,10 @@ export class ActivityFilterMapComponent implements OnInit {
 			radius: 1000000
 		},
 	];
+    compareWithFn = (radius1, radius2) => {
+        return radius1 && radius1 ? radius1.radius === radius2.radius : radius1 === radius2;
+    };
+    compareWith = this.compareWithFn;
 
     ngOnInit(): void {
     }
@@ -83,14 +87,16 @@ export class ActivityFilterMapComponent implements OnInit {
         resizeObserver.observe(mapDiv);
         this.map.on('click', (event) => {
             this.location = event.latlng;
-            this.addMarkerWithCircle(event.latlng);
+            var circle = this.addMarkerWithCircle(event.latlng);
+            this.map.fitBounds(circle.getBounds());
         });
         if (this.location) {
-            this.addMarkerWithCircle(this.location);
+            var circle = this.addMarkerWithCircle(this.location);
+            setTimeout(() => this.map.fitBounds(circle.getBounds()), 200);
         }
     }
 
-    private addMarkerWithCircle(latlng: Leaflet.LatLng): void {
+    private addMarkerWithCircle(latlng: Leaflet.LatLng): any {
         // Clear existing markers and circles
         this.map.eachLayer((layer) => {
             if (layer instanceof Leaflet.Marker || layer instanceof Leaflet.Circle) {
@@ -100,12 +106,14 @@ export class ActivityFilterMapComponent implements OnInit {
         // Define Strava colors
         const stravaRed = '#FC4C02';
         // Add a circle around the marker with Strava styling
-        Leaflet.circle(latlng, {
+        var circle = Leaflet.circle(latlng, {
             color: stravaRed,
             fillColor: stravaRed,
             fillOpacity: 0.2,
             radius: this.radiusOption.radius, // Radius in meters
-        }).addTo(this.map);
+        });
+        circle.addTo(this.map);
+        return circle;
     }
 
     async search(event) {
