@@ -28,8 +28,11 @@ export class StravaAuthService {
 	private router = inject(Router);
 
 	constructor() {
-		if (this.userIsAuthenticated()) {
+		let tokenValue: TokenValue = this.getTokenFromLocalStorage();
+		if (tokenValue != null && !this.isTokenExpired(tokenValue)) {
 			this.setAuthenticatedUser(this.getTokenFromLocalStorage());
+		} else if (tokenValue != null && this.isTokenExpired(tokenValue)) {
+			this.getAccessTokenFromRefreshToken(tokenValue)
 		}
 	}
 
@@ -137,5 +140,29 @@ export class StravaAuthService {
 		localStorage.removeItem(STRAVA_TOKEN_VALUE_STORAGE_KEY);
 		this.token$.next(null);
 		this.router.navigate(['/connect']);
+	}
+
+	private getAccessTokenFromRefreshToken(tokenValue: TokenValue) {
+		const payload = {
+			client_id: environment.stravaOAuth.clientId,
+			client_secret: environment.stravaOAuth.clientSecret,
+			grant_type: 'refresh_token',
+			refresh_token: tokenValue.refresh_token,
+		};
+		this.http
+			.post<TokenValue>(
+				'https://www.strava.com/api/v3/oauth/token',
+				payload,
+			)
+			.subscribe({
+				next: (response) => {
+					this.setAuthenticatedUser(response);
+				},
+				error: (e) => {
+					this.clearAuthenticatedUser();
+					handleError(e);
+				},
+				complete: () => console.info('complete'),
+			});
 	}
 }

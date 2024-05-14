@@ -1,11 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import {
-	HttpClient,
-	HttpErrorResponse,
-	HttpHeaders,
-} from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, } from '@angular/common/http';
 import { StravaAuthService } from './strava-auth.service';
-import { Router } from '@angular/router';
 import { catchError, map, Observable, throwError } from 'rxjs';
 
 @Injectable({
@@ -15,7 +10,6 @@ export class StravaApiService {
 	private apiUrl = 'https://www.strava.com/api/v3'; // Strava API base URL
 
 	private http = inject(HttpClient);
-	private router = inject(Router);
 	private stravaAuthService = inject(StravaAuthService);
 
 	constructor() {}
@@ -28,7 +22,6 @@ export class StravaApiService {
 				Authorization: `Bearer ${accessToken}`,
 			});
 		} else {
-			this.router.navigate(['/connect']);
 			return new HttpHeaders({});
 		}
 	}
