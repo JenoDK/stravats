@@ -45,6 +45,7 @@ export class ActivityFilterMapComponent implements OnInit {
         return radius1 && radius1 ? radius1.radius === radius2.radius : radius1 === radius2;
     };
     compareWith = this.compareWithFn;
+    private interaction: boolean = false;
 
     ngOnInit(): void {
     }
@@ -60,7 +61,7 @@ export class ActivityFilterMapComponent implements OnInit {
             this.map.setView([50.85045, 4.34878], 10);
         }
         const coordinates = await Geolocation.getCurrentPosition();
-        if (coordinates) {
+        if (coordinates && !this.interaction) {
             console.debug('Location found', coordinates);
             localStorage.setItem('geo-location', JSON.stringify([coordinates.coords.latitude, coordinates.coords.longitude]));
             this.map.setView([coordinates.coords.latitude, coordinates.coords.longitude], 13);
@@ -69,7 +70,6 @@ export class ActivityFilterMapComponent implements OnInit {
 
     initMap() {
         const mapDiv = document.getElementById('filter-map');
-        // If a location was previously found use it else brussels
         this.map = Leaflet.map(mapDiv, { doubleClickZoom: false });
         if (this.location) {
             this.map.setView(this.location, 13);
@@ -86,17 +86,22 @@ export class ActivityFilterMapComponent implements OnInit {
         });
         resizeObserver.observe(mapDiv);
         this.map.on('click', (event) => {
+            this.interaction = true;
             this.location = event.latlng;
-            var circle = this.addMarkerWithCircle(event.latlng);
-            this.map.fitBounds(circle.getBounds());
+            this.addMarkerWithCircle(this.location);
         });
-        if (this.location) {
+        if (!this.location) {
+            this.location = this.map.getCenter();
             var circle = this.addMarkerWithCircle(this.location);
-            setTimeout(() => this.map.fitBounds(circle.getBounds()), 200);
+            setTimeout(() => {
+                circle.bindPopup('Click on the map to change the location.<br/> You can also change the radius.').openPopup();
+            }, 100);
+        } else {
+            this.addMarkerWithCircle(this.location);
         }
     }
 
-    private addMarkerWithCircle(latlng: Leaflet.LatLng): any {
+    private addMarkerWithCircle(latlng: Leaflet.LatLng) {
         // Clear existing markers and circles
         this.map.eachLayer((layer) => {
             if (layer instanceof Leaflet.Marker || layer instanceof Leaflet.Circle) {
@@ -113,10 +118,12 @@ export class ActivityFilterMapComponent implements OnInit {
             radius: this.radiusOption.radius, // Radius in meters
         });
         circle.addTo(this.map);
+        setTimeout(() => this.map.fitBounds(circle.getBounds()), 200);
         return circle;
     }
 
     async search(event) {
+        this.interaction = true;
         const query = event.target.value.toLowerCase();
         if (query === '') {
             this.searchResults = [];

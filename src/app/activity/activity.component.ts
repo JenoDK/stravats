@@ -59,21 +59,21 @@ export class ActivityComponent implements OnInit {
 	}
 
 	openStravaActivity() {
-		const startStravaOAuthFlow = async () => {
+		const openStravaApp = async () => {
 			const canOpenApp = await AppLauncher.canOpenUrl({
 				url: 'strava://',
 			});
-			if (canOpenApp.value) {
-				const activityUrl = `strava://activities/${this.activity.id}`;
+			const isMobile = !this.platform.is('desktop');
+			if (canOpenApp.value && isMobile) {
 				// If the Strava app is installed, attempt to open it
-				return AppLauncher.openUrl({ url: activityUrl });
+				return AppLauncher.openUrl({ url: `strava://activities/${this.activity.id}` });
 			} else {
 				const activityUrl = `https://www.strava.com/activities/${this.activity.id}`;
 				// If the Strava app is not installed, open the authorization URL in the browser
 				return Browser.open({ url: activityUrl });
 			}
 		};
-		startStravaOAuthFlow().then(() => {});
+		openStravaApp().then(() => {});
 	}
 
 }

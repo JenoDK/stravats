@@ -6,8 +6,8 @@
                 Map Filter
             </ion-button>
         </ion-buttons>
-		<ion-progress-bar *ngIf="activitiesStore.$loading | async" type="indeterminate"></ion-progress-bar>
-        <ion-title>Activities ({{ activitiesStore.$activitiesLength() }})</ion-title>
+		<ion-progress-bar *ngIf="activitiesStore.$loading()" type="indeterminate"></ion-progress-bar>
+        <p class="toolbar-text">{{ activitiesStore.$activitiesLength() }} activities</p>
         <ion-buttons slot="end">
             <ion-button id="open-modal-filters" class="filter-button">
                 <fa-icon class="filter-icon" icon="filter"></fa-icon>
@@ -22,13 +22,17 @@
         <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <cdk-virtual-scroll-viewport itemSize="236" minBufferPx="237" maxBufferPx="1180" class="ion-content-scroll-host">
+    <cdk-virtual-scroll-viewport *ngIf="activitiesStore.$activitiesLength() > 0" itemSize="236" minBufferPx="237" maxBufferPx="1180" class="ion-content-scroll-host">
         <ion-list>
 			<ion-item *cdkVirtualFor="let activity of activitiesStore.$filteredActivities(); templateCacheSize: 0">
 				<app-activity [activity]="activity"></app-activity>
 			</ion-item>
         </ion-list>
     </cdk-virtual-scroll-viewport>
+    <ion-list *ngIf="activitiesStore.$loading() && activitiesStore.$activitiesLength() === 0">
+        <app-activity-skeleton></app-activity-skeleton>
+    </ion-list>
+    <div *ngIf="activitiesStore.$activitiesLength() === 0 && !activitiesStore.$loading()" class="empty-results">No results found</div>
 
     <ion-modal #modal trigger="open-modal-filter-map" [initialBreakpoint]="0.80">
         <ng-template>

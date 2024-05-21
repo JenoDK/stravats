@@ -6,8 +6,8 @@
 				routerLink="/home"
 				class="custom-tab-button"
 			>
-				<ion-icon name="home-outline"></ion-icon>
-				Home
+				<ion-icon name="person-circle-outline"></ion-icon>
+				Profile
 			</ion-tab-button>
 			<ion-tab-button
 				tab="activities"
@@ -18,6 +18,7 @@
 				Activities
 			</ion-tab-button>
 			<ion-tab-button
+				*ngIf="isDevMode"
 				tab="clear"
 				(click)="clearData()"
 				class="custom-tab-button"

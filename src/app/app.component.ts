@@ -1,4 +1,4 @@
-import { Component, NgZone } from '@angular/core';
+import { Component, NgZone, isDevMode } from '@angular/core';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
 import { Router } from '@angular/router';
 
@@ -8,6 +8,9 @@ import { Router } from '@angular/router';
 	styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
+
+	isDevMode: boolean = isDevMode();
+
 	constructor(
 		private router: Router,
 		private zone: NgZone,

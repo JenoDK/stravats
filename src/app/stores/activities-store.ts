@@ -1,10 +1,10 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { DetailedActivity } from '../model/strava';
-import { distinctUntilChanged, filter, Observable, skip } from 'rxjs';
+import { distinctUntilChanged, filter, skip } from 'rxjs';
 import { InfiniteScrollCustomEvent } from '@ionic/angular';
 import { decode } from 'google-polyline';
 import { ActivitiesFilterStore } from './activities-filter-store';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({ providedIn: 'root' })
 export class ActivitiesStore {
@@ -15,7 +15,7 @@ export class ActivitiesStore {
         $filteredActivities: signal<DetailedActivity[]>([]),
     } as const;
 
-    public readonly $loading: Observable<boolean> = toObservable(this.state.$loading);
+    public readonly $loading = this.state.$loading.asReadonly();
     public readonly $activities = this.state.$activities.asReadonly();
 	public readonly $activitiesLength = computed(() => this.state.$filteredActivities().length);
 	public readonly $filteredActivities = this.state.$filteredActivities.asReadonly();

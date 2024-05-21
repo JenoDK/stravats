@@ -11,6 +11,7 @@ import { ActivityComponentModule } from '../activity/activity.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ActivityFilterMapComponentModule } from '../activity-filter-map/activity-filter-map.module';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { ActivitySkeletonComponent } from './activity-skeleton/activity-skeleton.component';
 
 @NgModule({
 	imports: [
@@ -23,7 +24,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 		ActivityFilterMapComponentModule,
 		ScrollingModule
 	],
-	declarations: [ActivitiesPage],
+	declarations: [ActivitiesPage, ActivitySkeletonComponent],
 })
 export class ActivitiesPageModule {
 }

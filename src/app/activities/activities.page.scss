@@ -6,11 +6,22 @@
 	--padding-end: 8px;
 }
 
-cdk-virtual-scroll-viewport, .cdk-virtual-scroll-content-wrapper {
+.toolbar-text {
+	text-align: center;
+}
+
+cdk-virtual-scroll-viewport {
 	height: 100%;
 	width: 100%;
 }
 
 .activity-filter-popup {
+	height: 100%;
+}
+
+.empty-results {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	height: 100%;
 }
